@@ -16,5 +16,5 @@ for line in file:
         deck.append(Quarter(name, value))
     # data.append(line[0:len(line) - 1])
 
-random.shuffle(deck)
+# random.shuffle(deck)
 
