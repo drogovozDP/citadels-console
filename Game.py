@@ -4,10 +4,11 @@ from Quarter import deck
 
 class Game(): # нужны приватные методы, чтобы ограничить возможности игроков
     def __init__(self):
-        self.run = True
+        # self.run = True
         self.deckQuar = deck # колода кварталов
-        self.character = character() # пустой персонаж, он всегда взят
-        self.deckChar = [Assassin(), Thief(), Wizard(), King(), Bishop(), Merchant(), Architect(), Warlord()] # все персонажи
+        self.character = character(None, self) # пустой персонаж, он всегда взят
+        self.deckChar = [Assassin(None, self), Thief(None, self), Wizard(None, self), King(None, self),
+                         Bishop(None, self), Merchant(None, self), Architect(None, self), Warlord(None, self)] # все персонажи
         self.players = [] # игроки заполняются при вызове self.init()
         self.queue = [None] * 8 # порядок хода игроков
 
@@ -18,30 +19,37 @@ class Game(): # нужны приватные методы, чтобы огра�
                 del self.deckQuar[0]
             self.players.append(Player(name, self, hand))
 
-    def prepare_round(self): # каждый игрок выбирает себе персонажа
+    def _prepare_round(self): # каждый игрок выбирает себе персонажа
         for player in self.players:
             print(player.name, 'выбирает :з') # временная строка
             index = player.choose_character(self.deckChar)
             self.queue[index] = player
+            self.deckChar[index].player = player
 
-    def round(self): # по очереди вызывается каждый персонаж от 1 до 8
+    def _round(self): # по очереди вызывается каждый персонаж от 1 до 8
         for player in self.queue:
             if player != None:
                 print(player.name, 'ходит :)') # временная строка
                 player.action()
 
-    def reload(self): # забирает у всех игроков карты персонажей, делает колоду персонажей полной, опусташает очередь
+    def _reload(self): # забирает у всех игроков карты персонажей, делает колоду персонажей полной, опусташает очередь
+        game_running = True
         for player in self.players:
             player.character = self.character # отдаем каждому игроку нейтрального персонажа
             if len(player.city) == 3: # проверка на конец игры
-                self.run = False
-                self.winner()
+                # self.run = False
+                game_running = False
+                self._winner()
 
-        for char in self.deckChar: # делаем каждого персонажа НЕ выбранным
-            char.choosen = False
+        for char in self.deckChar:
+            char.choosen = False # делаем каждого персонажа НЕ выбранным
+            char.alive = True # делаем каждого персонажа вновь живым(исправляем активити ассасина)
+            char.robed = False # делаем каждого необоворованным, чтобы обворовать
+            char.player = None # теперь карта персонажа не присовоен игроку
 
         for i in range(len(self.queue)): # опусташаем очередь
             self.queue[i] = None
+        return  game_running
 
     def giveCard(self, count): # даем count карт игроку который вызвал этот метод
         cards = []
@@ -54,7 +62,7 @@ class Game(): # нужны приватные методы, чтобы огра�
         for card in cards:
             self.deckQuar.append(card)
 
-    def winner(self):
+    def _winner(self):
         record = []
         for player in self.players:
             value = 0
@@ -66,5 +74,8 @@ class Game(): # нужны приватные методы, чтобы огра�
     def info(self): # просто дает информацию о состоянии игры
         for player in self.players:
             player.info()
-        print('now the first card is: ' + self.deckQuar[0].name)
-        print('and the last card is: ' + self.deckQuar[-1].name)
+
+    def run(self):
+        self._prepare_round()
+        self._round()
+        return self._reload()

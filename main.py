@@ -1,11 +1,8 @@
 from Game import Game
 
-names = ['Димочка', 'Ромочка']
+names = ['Димочка', 'Ромочка', 'Полиночка']
 game = Game()
 game.init(names)
 
-while game.run:
-    game.prepare_round()
-    game.round()
-    game.reload()
+while game.run():
     game.info()

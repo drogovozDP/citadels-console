@@ -3,11 +3,12 @@ from characters import character
 class Player():
     def __init__(self, name, gameMaster, hand):
         self.name = name
-        self.character = character()
+        self.gameMaster = gameMaster  # это эксемпляр игры(у всех он одинаковый), они будут так влиять друг на друга
+        self.character = character(None, self.gameMaster)
         self.city = []
         self.hand = hand # кварталы в руке
         self.gold = 2
-        self.gameMaster = gameMaster # это эксемпляр игры(у всех он одинаковый), они будут так влиять друг на друга
+
 
     def choose_character(self, characters):
         row = ''
@@ -49,12 +50,21 @@ class Player():
         del self.hand[index]
 
     def action(self):
+        if self.character.alive == False:
+            print('oh no, you are dead!') # никто об этом не должен знать
+            return
+        if self.character.robed:
+            for player in self.gameMaster.players:
+                if player.character.name == 'Thief':
+                    player.gold += self.gold
+                    self.gold = 0
+            print('oh my god, you have lost whole your gold!')
         choose_1 = input('1) gold(1) or quarter(2)? ')
         self.take_resources(choose_1)
 
-        # choose_2 = input('2) wanna make special ability? ')
-        # if choose_2 == 'yes':
-        #     self.character.ability()
+        choose_2 = input('2) wanna make special ability? ')
+        if choose_2 == 'yes':
+            self.character.ability()
 
         choose_3 = input('3) wanna build something?(you have ' + str(self.gold) + ' gold) ')
         if choose_3 == 'yes':
