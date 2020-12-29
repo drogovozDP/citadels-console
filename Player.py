@@ -26,12 +26,15 @@ class Player():
         row = row[0: len(row) - 2]
         return row
 
-    def choose_character(self, characters):
+    def available_chars(self, characters):
         row = ''
         for char in characters: # набор доступных персонажей
-            if char.choosen == False:
+            if not char.choosen:
                 row += char.name + '(' + str(char.initiative) + ') '
-        print(row)
+        return row
+
+    def choose_character(self, characters):
+        print(self.available_chars(characters))
         charCount = len(self.charList) + 1
         while len(self.charList) < charCount: # выбор персонажа
             index = int(input('which character? ')) - 1
@@ -39,6 +42,11 @@ class Player():
                 self.charList.append(characters[index])
         characters[index].choosen = True # теперь этот персонаж выбран
         return index
+
+    def choose_drop(self, characters):
+        print(self.available_chars(characters))
+        index = int(input('you have to drop someone hide ')) - 1
+        characters[index].choosen = True
 
     def _take_resources(self, kind):
         if kind == '2':
@@ -67,8 +75,9 @@ class Player():
         row = self.get_hand()
         index = int(input(row + ' ')) - 1
         for quart in self.city:
-            print("you can't build same quarters")
-            if self.hand[index].name == quart.name: return # нельзя строить одинаковые кварталы
+            if self.hand[index].name == quart.name:
+                print("you can't build same quarters")
+                return # нельзя строить одинаковые кварталы
         if self.gold - self.hand[index].value < 0:
             print('not enough gold')
             return # если не хватает золота, то сразу выходим
@@ -88,11 +97,12 @@ class Player():
             if self.character.name == 'King':
                 self.character.default()
             return
-        if self.character.robed:
-            for player in self.gameMaster.players:
-                if player.character.name == 'Thief':
-                    player.gold += self.gold
-                    self.gold = 0
+        if self.character.robed: # если персонаж ограблен
+            for player in self.gameMaster.players: # смотрим у каждого игрока...
+                for char in player.charList: # ...нету ли у него вора(':
+                    if char.name == 'Thief':
+                        player.gold += self.gold
+                        self.gold = 0
             print('oh my god, you have lost whole your gold!')
         self.character.default() # применяется свойства персонажа по умолчанию
 

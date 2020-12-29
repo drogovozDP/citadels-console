@@ -174,7 +174,7 @@ class Architect(character):
         cards = self.gameMaster.giveCard(2)
         row = ''
         for i in range(len(cards)):
-            row += cards[i].name + '(' + str(i) + '), '
+            row += cards[i].name + '(' + str(i + 1) + '), '
             self.player.hand.append(cards[i])
         row = row[0:len(row) - 2]
         print('you just recived 2 cards!', row)
@@ -204,6 +204,10 @@ class Warlord(character):
                 row += quarter.name + '(value: ' + value + '), '
             print(row) # выводим, чтобы игрок сделал выбор
         index = int(input('which player? ')) - 1
+        for char in players[index].charList:
+            if char.name == 'Bishop':
+                print("you can't destroy Bishop's quarters")
+                return
         quarters = ''
         count = 1
         values = [] # здесь будут хранитсья все цены кварталов выбранного игрока
